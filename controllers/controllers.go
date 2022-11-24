@@ -33,6 +33,7 @@ func(ctrl *BaseController) GetAllSpots(c *gin.Context) {
 
 	if err != (&utils.HttpError{}) {
 		c.JSON(http.StatusBadRequest, gin.H{ "status": err.Status, "message": err.Err})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{ "status": http.StatusOK, "message": "ok", "data": spots})
 }
