@@ -31,7 +31,7 @@ func(ctrl *BaseController) GetAllSpots(c *gin.Context) {
 	
 	spots, err := ctrl.dbSpotModel.AllSpots()
 
-	if err != (&utils.HttpError{}) {
+	if err == (&utils.HttpError{}) {
 		c.JSON(http.StatusBadRequest, gin.H{ "status": err.Status, "message": err.Err})
 		return
 	}
