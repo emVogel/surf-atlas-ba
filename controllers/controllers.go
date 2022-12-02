@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"server-app/geojson"
 	"server-app/model"
 	"server-app/utils"
 
@@ -29,11 +30,12 @@ func NewBaseController(dbSpotModel model.SpotDbModel) *BaseController {
 */
 func(ctrl *BaseController) GetAllSpots(c *gin.Context) {
 	
-	spots, err := ctrl.dbSpotModel.AllSpots()
-
+	resp, err := ctrl.dbSpotModel.AllSpots()
+	
+	geojson, err := geojson.BuildGeojsonCollection(resp)
 	if err == (&utils.HttpError{}) {
 		c.JSON(http.StatusBadRequest, gin.H{ "status": err.Status, "message": err.Err})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{ "status": http.StatusOK, "message": "ok", "data": spots})
+	c.JSON(http.StatusOK, gin.H{ "status": http.StatusOK, "message": "ok", "data": geojson})
 }

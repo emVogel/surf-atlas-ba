@@ -26,13 +26,13 @@ func NewSpotRepository(db *gorm.DB) *SpotRepository {
 /*
 * get all spots from db
 */
-func (spotRepo *SpotRepository) AllSpots() (*[]model.Spot, *utils.HttpError) {
-	var spots []model.Spot
+func (spotRepo *SpotRepository) AllSpots() ([]model.Response, *utils.HttpError) {
+	var spots []model.Response
 
-	spotRepo.db.Find(&spots)
+	spotRepo.db.Raw("SELECT id, name, alternative_name, wind, swell, province, bottom, access, location, description, crowd, best_season, type, tide,  ST_AsGeoJSON(geom) as geom FROM spots").Scan(&spots)
 
 	if len(spots) == 0 {
 		return nil, utils.NewHttpError(400, "Bad Request")
 	}
-	return &spots, &utils.HttpError{}
+	return spots, &utils.HttpError{}
 }
