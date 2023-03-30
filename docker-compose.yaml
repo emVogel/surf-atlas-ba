@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./DockerFile.reload
+    ports:
+      - 4040:4040
+    env_file:
+      - .env.container
+    volumes:
+      - ./:/app

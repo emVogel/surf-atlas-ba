@@ -1,6 +1,8 @@
 package model
 
 import (
+	"fmt"
+	"reflect"
 	"server-app/utils"
 )
 
@@ -47,11 +49,25 @@ type Spot struct{
 	BestSeason string`json:"best_season"`;
 }
 
-
+func(spot *Spot) Validador(key string, value string) (bool, utils.HttpError) {
+	structureVal:= reflect.ValueOf(spot).Elem()
+	fmt.Println("a struct value of Elem", structureVal)
+	isSpotStructProperty := utils.ValidateFilterKey(key, structureVal)
+	
+	 if !isSpotStructProperty {
+			return false, utils.NewHttpError(403, "Not allowed")
+	 }
+	 isValidValue := utils.ValidateFilterValue(value)
+	 if !isValidValue {
+		return false, utils.NewHttpError(403, "Not allowed")
+	 }
+	 return true, utils.HttpError{}
+	}
 
 /**
 * interface for the db queries
 */
 type SpotDbModel interface {
-	AllSpots() ([]Response, *utils.HttpError) 
+	AllSpots() ([]Response, utils.HttpError) 
+	FilterSpotsByProperties(map[string][]string) ([]Response, utils.HttpError) 
 }

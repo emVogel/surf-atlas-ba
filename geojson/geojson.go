@@ -10,6 +10,9 @@ type ResponseExecuter struct{
 	resp model.Response
 }
 
+/**
+* struct to handle the response for building the geojson 
+*/
 func newResonseExecuter(response model.Response) ResponseExecuter{
 	return ResponseExecuter{
 		resp: response,
@@ -17,9 +20,10 @@ func newResonseExecuter(response model.Response) ResponseExecuter{
 }
 
 /**
-* returns the geomtry as astruct from the response
+* returns the geometry as astruct from the response
 */
 func(executer *ResponseExecuter) GetGeometry() Geometry {
+	// to convert the Geom filed into a struct, its marshalled by byte to later unmarshall it into Geom struct
 	b := []byte(executer.resp.Geom)
 
 	var geom Geometry
@@ -29,27 +33,36 @@ func(executer *ResponseExecuter) GetGeometry() Geometry {
 	return geom
 }
 
-func(executer *ResponseExecuter) GetSpot() (model.Spot) {
+/**
+* extracts the spot from the response 
+*/
+func(executer *ResponseExecuter) GetSpot() (model.Spot, utils.HttpError) {
 	var spot model.Spot
 	bi, mErr:= json.Marshal(&executer.resp)
 	if(mErr != nil){
-		return model.Spot{}
+		return model.Spot{}, utils.NewHttpError(500, "server-error")
 	}
 	uErr := json.Unmarshal(bi, &spot)
 
 	if (uErr !=nil) {
-		return model.Spot{}
+		return model.Spot{}, utils.NewHttpError(500, "server-error")
 	}
-	return spot
+	return spot, utils.HttpError{}
 }
 
+/**
+* geojson collection containing the all features
+*/
 type GeoJsonFeatureCollection struct{
 	Type string`json:"type"`
 	Features []Feature`json:"features"`
 }
 
+/**
+* GeoFeature containing geometry and properties
+*/
 type Feature struct {
-	Type string`json:"Type"`
+	Type string`json:"type"`
 	Geometry Geometry`json:"geometry"`
 	Properties model.Spot`json:"properties"`
 }
@@ -68,6 +81,9 @@ func NewGeojsonFeatureCollection(features []Feature ) GeoJsonFeatureCollection{
 	}
 }
 
+/**
+* returns a new feature
+*/
 func NewFeature(geometry Geometry, properties  model.Spot) Feature {
 	return Feature{
 		Type: "Feature",
@@ -76,21 +92,32 @@ func NewFeature(geometry Geometry, properties  model.Spot) Feature {
 	}
 }
 
-func BuildGeojsonCollection(response []model.Response) (GeoJsonFeatureCollection, *utils.HttpError) {
+/**
+* build the geojson collection from the response
+*/
+func BuildGeojsonCollection(response []model.Response) (GeoJsonFeatureCollection, utils.HttpError) {
 	var features []Feature 
 	for index:= range response {
 		resp := response[index]
-		exeCuter := newResonseExecuter(resp);
-		geom :=  exeCuter.GetGeometry()
-		spot := exeCuter.GetSpot()
-		
-		if (spot == model.Spot{}) {
-			return GeoJsonFeatureCollection{}, utils.NewHttpError(500, "server error")
+	
+		feature, err := GetFeatureFromResponse(resp)
+		if(err != utils.HttpError{}) {
+		return	GeoJsonFeatureCollection{}, err
 		}
-		 feature := NewFeature(geom, spot)
 
 		features = append(features, feature)
 	}
 
-	return NewGeojsonFeatureCollection(features), &utils.HttpError{}
+	return NewGeojsonFeatureCollection(features), utils.HttpError{}
+}
+
+func GetFeatureFromResponse(response model.Response) (Feature, utils.HttpError){
+	exeCuter := newResonseExecuter(response);
+	geom :=  exeCuter.GetGeometry()
+	spot, err := exeCuter.GetSpot()
+	
+	if (err != utils.HttpError{}) {
+		return Feature{}, err
+	}
+	 return NewFeature(geom, spot), utils.HttpError{}
 }
