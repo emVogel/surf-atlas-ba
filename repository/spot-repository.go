@@ -52,7 +52,7 @@ func(spotRepo *SpotRepository) FilterSpotsByProperties(query map[string][]string
 		
 	}
 
-	sql := fmt.Sprintf("SELECT id, name, alternative_name, wind, swell, province, bottom, access, location, description, crowd, best_season, type, tide,  ST_AsGeoJSON(geom) as geom from spots WHERE %s", sqlString)
+	sql := fmt.Sprintf("SELECT id, name, alternative_name, wind, swell, province, bottom, access, location, description, crowd, best_season, type, tide,  ST_AsGeoJSON(ST_Transform(geom, 4326) as geom from spots WHERE %s", sqlString)
 	fmt.Print(sqlString)
 	spotRepo.db.Raw(sql).Scan(&spots)
 	return spots, utils.HttpError{}
@@ -64,7 +64,7 @@ func(spotRepo *SpotRepository) FilterSpotsByProperties(query map[string][]string
 func (spotRepo *SpotRepository) AllSpots() ([]model.Response, utils.HttpError) {
 	var spots []model.Response
 
-	spotRepo.db.Table("spots").Select("id, name, alternative_name, wind, swell, province, bottom, access, location, description, crowd, best_season, type, tide,  ST_AsGeoJSON(geom) as geom").Scan(&spots)
+	spotRepo.db.Table("spots").Select("id, name, alternative_name, wind, swell, province, bottom, access, location, description, crowd, best_season, type, tide,  ST_AsGeoJSON(ST_Transform(geom, 4326)) as geom").Scan(&spots)
 
 	if len(spots) == 0 {
 		return nil, utils.NewHttpError(400, "Bad Request")
