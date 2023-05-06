@@ -2,13 +2,17 @@ package geojson
 
 import (
 	"encoding/json"
+	"fmt"
 	"server-app/model"
 	"server-app/utils"
+	"strings"
 )
 
 type ResponseExecuter struct{
 	resp model.Response
 }
+
+
 
 /**
 * struct to handle the response for building the geojson 
@@ -37,17 +41,49 @@ func(executer *ResponseExecuter) GetGeometry() Geometry {
 * extracts the spot from the response 
 */
 func(executer *ResponseExecuter) GetSpot() (model.Spot, utils.HttpError) {
+	var rawSpot model.RawSpot
+
 	var spot model.Spot
+
 	bi, mErr:= json.Marshal(&executer.resp)
 	if(mErr != nil){
 		return model.Spot{}, utils.NewHttpError(500, "server-error")
 	}
-	uErr := json.Unmarshal(bi, &spot)
 
-	if (uErr !=nil) {
-		return model.Spot{}, utils.NewHttpError(500, "server-error")
+	uErr := json.Unmarshal(bi, &rawSpot)
+	spot = BuildSpot(rawSpot, executer.resp)
+	
+
+	if (uErr != nil) {
+		return model.Spot{}, utils.NewHttpError(500, uErr.Error())
 	}
 	return spot, utils.HttpError{}
+}
+
+func BuildSpot(rawSpot model.RawSpot, response model.Response) model.Spot {
+
+	var spot model.Spot
+
+ 	spot.ID = rawSpot.ID
+ 	spot.Name = rawSpot.Name
+ 	spot.AlternativeName = rawSpot.AlternativeName
+	spot.Access = rawSpot.Access
+	spot.BestConditions = rawSpot.BestConditions
+	spot.BestSeason = rawSpot.BestSeason
+	spot.Bottom = rawSpot.Bottom
+	spot.Crowd = rawSpot.Crowd
+	spot.Description = rawSpot.Description
+	spot.Direction = rawSpot.Direction
+	spot.Location = rawSpot.Location
+	spot.Province = rawSpot.Province
+	spot.Swell = strings.Split(response.Swell, ",")
+	spot.Tide = rawSpot.Tide
+	spot.Type = rawSpot.Type
+	spot.Wind = strings.Split(response.Wind, ",")
+
+	fmt.Println("dir",spot.Direction)
+	fmt.Println("raw", rawSpot.Direction)
+	return spot
 }
 
 /**
@@ -72,7 +108,6 @@ type Geometry struct {
 	Type string `json:"type"`
 	Coordinates []float64 `json:"coordinates"`
 }
-
 
 func NewGeojsonFeatureCollection(features []Feature ) GeoJsonFeatureCollection{
 	return GeoJsonFeatureCollection{
