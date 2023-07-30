@@ -79,6 +79,11 @@ func(spot *Spot) Validador(key string, value string) (bool, utils.HttpError) {
 	 return true, utils.HttpError{}
 	}
 
+	type HttpResponseStatus struct {
+		Status int `json:"status"`;
+		Message string `json:"message"`;
+	}
+
 /**
 * interface for the db queries
 */

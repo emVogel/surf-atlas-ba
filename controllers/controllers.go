@@ -35,32 +35,38 @@ func (ctrl *BaseController) GetSpotsByFilter(c *gin.Context) {
 	resp, dbErr := ctrl.dbSpotModel.FilterSpotsByProperties(query)
 
 	if (dbErr != utils.HttpError{}) {
-		c.JSON(http.StatusBadRequest, gin.H{ "status": dbErr.Status, "message": dbErr.Err})
+		status := model.HttpResponseStatus{Status: dbErr.Status, Message: dbErr.Err};
+		c.JSON(http.StatusBadRequest, gin.H{ "response_status": status})
 		return
 	}
 
 	geojson, geoErr := geojson.BuildGeojsonCollection(resp)
 
 	if (geoErr != utils.HttpError{}) {
-		c.JSON(http.StatusBadRequest, gin.H{ "status": geoErr.Status, "message": geoErr.Err})
+		status := model.HttpResponseStatus{Status: geoErr.Status, Message: geoErr.Err};
+		c.JSON(http.StatusBadRequest, gin.H{ "response_status": status})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{ "status": http.StatusOK, "message": "ok", "data": geojson})
+	status := model.HttpResponseStatus{Status: http.StatusOK, Message: "ok"}
+	c.JSON(http.StatusOK, gin.H{ "response_status": status, "data": geojson})
 }
 
 /**
 * controller to return all spots to the clients
 */
 func(ctrl *BaseController) GetAllSpots(c *gin.Context) {
-	
 	resp, err := ctrl.dbSpotModel.AllSpots()
 	
 	geojson, err := geojson.BuildGeojsonCollection(resp)
 	
 	if (err != utils.HttpError{}) {
-		c.JSON(http.StatusBadRequest, gin.H{ "status": err.Status, "message": err.Err})
+		status := model.HttpResponseStatus{Status: err.Status, Message: err.Err};
+
+		c.JSON(http.StatusBadRequest, gin.H{ "response_status": status})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{ "status": http.StatusOK, "message": "ok", "data": geojson})
+
+	 status := model.HttpResponseStatus{Status: http.StatusOK, Message: "ok"}
+	c.JSON(http.StatusOK, gin.H{ "response_status": status, "data": geojson})
 }
