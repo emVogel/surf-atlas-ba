@@ -25,6 +25,7 @@ func NewSpotRepository(db *gorm.DB) *SpotRepository {
 }
 
 func(spotRepo *SpotRepository) FilterSpotsByProperties(query map[string][]string)([]model.Response, utils.HttpError) {
+	fmt.Print("query", query)
 	var spots [] model.Response
 	var spotStruct model.Spot
 	var queryString []string
@@ -52,7 +53,7 @@ func(spotRepo *SpotRepository) FilterSpotsByProperties(query map[string][]string
 		
 	}
 
-	sql := fmt.Sprintf("SELECT id, name, alternative_name, wind, swell, province, bottom, access, location, description, direction, crowd, best_season, type, tide,  ST_AsGeoJSON(ST_Transform(geom, 4326) as geom from spots WHERE %s", sqlString)
+	sql := fmt.Sprintf("SELECT id, name, alternative_name, wind, swell, province, bottom, access, location, description, direction, crowd, best_season, type, tide,  ST_AsGeoJSON(ST_Transform(geom, 4326)) as geom from spots WHERE %s", sqlString)
 	fmt.Print(sqlString)
 	spotRepo.db.Raw(sql).Scan(&spots)
 	return spots, utils.HttpError{}
