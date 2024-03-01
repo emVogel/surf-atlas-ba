@@ -26,6 +26,8 @@ func main() {
 
 	r.GET("/filterspots", controllers.GetSpotsByFilter)
 
+	r.GET("/spotsById", controllers.GetSpotById)
+
 	r.GET("/", func(c *gin.Context) {
 		paramPairs := c.Request.URL.Query()
 		for key, values := range paramPairs {

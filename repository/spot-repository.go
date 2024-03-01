@@ -72,3 +72,15 @@ func (spotRepo *SpotRepository) AllSpots() ([]model.Response, utils.HttpError) {
 	}
 	return spots, utils.HttpError{}
 }
+ 
+func(spotRepo *SpotRepository) GetSpotById(id int) ([]model.Response, utils.HttpError) {
+	var spots []model.Response
+
+	spotRepo.db.Table("spots").Select("id, name, alternative_name, wind, swell, province, bottom, access, location, description,direction, crowd, best_season, type, tide, best_conditions, ST_AsGeoJSON(ST_Transform(geom, 4326)) as geom").First(&spots, id)
+
+	if len(spots) == 0 {
+		return nil, utils.NewHttpError(400, "Bad Request, no spot with such id")
+	}
+	return spots, utils.HttpError{}
+
+}

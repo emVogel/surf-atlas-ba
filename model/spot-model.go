@@ -90,4 +90,5 @@ func(spot *Spot) Validador(key string, value string) (bool, utils.HttpError) {
 type SpotDbModel interface {
 	AllSpots() ([]Response, utils.HttpError) 
 	FilterSpotsByProperties(map[string][]string) ([]Response, utils.HttpError) 
+	GetSpotById(id int) ([]Response, utils.HttpError)
 }
