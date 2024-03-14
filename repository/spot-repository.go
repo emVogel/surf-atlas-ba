@@ -35,7 +35,7 @@ func(spotRepo *SpotRepository) FilterSpotsByProperties(query map[string][]string
 		if !ok{
 			return nil, error
 		}
-		str := key +" LIKE " + "'%"+value[0]+"%'"
+		str := key +" LIKE " + "'"+value[0]+"'"
 		queryString = append(queryString, str )
 	}
 	var sqlString string
