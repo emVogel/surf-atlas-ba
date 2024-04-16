@@ -1,16 +1,21 @@
 package model
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"server-app/utils"
 
-	"github.com/goccy/go-json"
+	"github.com/lib/pq"
 )
+type Swell struct {
+	Direction string`json:"direction"`
+	Size string`json:"size"`
+}
 
 type BestConditions struct {
-	Swell string`json:"swell"`
-	//Wind map[string]string`json:"wind"`
+	Swell Swell`json:"swell"`
+	Wind string`json:"wind"`
 }
 
 /**
@@ -22,8 +27,7 @@ type Response struct{
 	AlternativeName string `json:"alternative_name"`;
 	Province string `json:"province"`;
 	Type string `json:"type"`;
-	Tide string  `json:"tide"`;
-	Wind string `json:"wind"`;
+	Tide string  `json:"tide"`;	Wind pq.StringArray `gorm:"type:text[]" json:"wind"`;
 	Swell string `json:"swell"`;
 	Bottom string `json:"bottom"`;
 	Direction string `json:"direction"`
@@ -46,7 +50,7 @@ type RawSpot struct{
 	Province string `json:"province"`;
 	Type string `json:"type"`;
 	Tide string  `json:"tide"`;
-
+	Wind []string `json:"wind"`;
 	Bottom string `json:"bottom"`;
 	Direction string `json:"direction"`
 	Access string `json:"access"`;
@@ -59,7 +63,6 @@ type RawSpot struct{
 
 type Spot struct{
 	RawSpot
-	Wind []string `json:"wind"`;
 	Swell []string `json:"swell"`;
 
 }

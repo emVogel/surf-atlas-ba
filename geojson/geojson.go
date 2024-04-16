@@ -2,7 +2,6 @@ package geojson
 
 import (
 	"encoding/json"
-	"fmt"
 	"server-app/model"
 	"server-app/utils"
 	"strings"
@@ -79,10 +78,7 @@ func BuildSpot(rawSpot model.RawSpot, response model.Response) model.Spot {
 	spot.Swell = strings.Split(response.Swell, ",")
 	spot.Tide = rawSpot.Tide
 	spot.Type = rawSpot.Type
-	spot.Wind = strings.Split(response.Wind, ",")
-
-	fmt.Println("dir",spot.Direction)
-	fmt.Println("raw", rawSpot.Direction)
+	spot.Wind = rawSpot.Wind
 	return spot
 }
 

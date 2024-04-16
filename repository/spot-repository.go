@@ -29,16 +29,18 @@ func(spotRepo *SpotRepository) FilterSpotsByProperties(query map[string][]string
 	var spots [] model.Response
 	var spotStruct model.Spot
 	var queryString []string
+	var sqlString string
+
 	for key, value:= range query {
 		
 		ok, error := spotStruct.Validador(key, value[0])
 		if !ok{
 			return nil, error
 		}
-		str := key +" LIKE " + "'"+value[0]+"'"
+		str := buildQuerySqlString(key, value)
 		queryString = append(queryString, str )
 	}
-	var sqlString string
+	
 	for index := range queryString {
 		
 		if (index == 0) {
@@ -83,4 +85,18 @@ func(spotRepo *SpotRepository) GetSpotById(id int) ([]model.Response, utils.Http
 	}
 	return spots, utils.HttpError{}
 
+}
+
+/** builds the part of query string to get the values for a given spot property
+* for some props the query must not contain a strict match sql statement
+*/
+
+func buildQuerySqlString(key string, value []string) string {
+	if(key == "direction") {
+		return key +" LIKE " + "'%"+value[0]+"%'"
+	}
+	if(key == "wind") {
+		return "'" + value[0] + "' = ANY (" + key + ")"
+	}
+	return key +" LIKE " + "'"+value[0]+"'"
 }
