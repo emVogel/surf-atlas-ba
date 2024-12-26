@@ -27,7 +27,8 @@ type Response struct{
 	AlternativeName string `json:"alternative_name"`;
 	Province string `json:"province"`;
 	Type string `json:"type"`;
-	Tide string  `json:"tide"`;	Wind pq.StringArray `gorm:"type:text[]" json:"wind"`;
+	Tide string  `json:"tide"`;
+	Wind pq.StringArray `gorm:"type:text[]" json:"wind"`;
 	Swell string `json:"swell"`;
 	Bottom string `json:"bottom"`;
 	Direction string `json:"direction"`

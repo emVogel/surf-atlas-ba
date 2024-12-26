@@ -5,7 +5,6 @@ import (
 	"server-app/geojson"
 	"server-app/model"
 	"server-app/utils"
-
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -68,7 +67,15 @@ func(ctrl *BaseController) GetAllSpots(c *gin.Context) {
 		return
 	}
 
-	geojson, err := geojson.BuildGeojsonCollection(resp)
+	geojson, geoErr := geojson.BuildGeojsonCollection(resp)
+
+	if (geoErr != utils.HttpError{}) {
+		status := model.HttpResponseStatus{Status: geoErr.Status, Message: geoErr.Err};
+
+		c.JSON(http.StatusBadRequest, gin.H{ "response_status": status})
+		return
+	}
+
 
 	 status := model.HttpResponseStatus{Status: http.StatusOK, Message: "ok"}
 	c.JSON(http.StatusOK, gin.H{ "response_status": status, "data": geojson})

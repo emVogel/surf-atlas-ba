@@ -5,6 +5,7 @@ import (
 	"server-app/model"
 	"server-app/utils"
 	"strings"
+	"fmt"
 )
 
 type ResponseExecuter struct{
@@ -137,6 +138,8 @@ func BuildGeojsonCollection(response []model.Response) (GeoJsonFeatureCollection
 		}
 
 		features = append(features, feature)
+
+		fmt.Print("features")
 	}
 
 	return NewGeojsonFeatureCollection(features), utils.HttpError{}

@@ -25,11 +25,9 @@ func NewSpotRepository(db *gorm.DB) *SpotRepository {
 }
 
 func(spotRepo *SpotRepository) FilterSpotsByProperties(query map[string][]string)([]model.Response, utils.HttpError) {
-	fmt.Print("query", query)
 	var spots [] model.Response
 	var spotStruct model.Spot
 	var queryString []string
-	var sqlString string
 
 	for key, value:= range query {
 		
@@ -41,22 +39,9 @@ func(spotRepo *SpotRepository) FilterSpotsByProperties(query map[string][]string
 		queryString = append(queryString, str )
 	}
 	
-	for index := range queryString {
-		
-		if (index == 0) {
-			sqlString =  queryString[index] + " " + " AND "
-		}
-		if (len(queryString) -1 != index && index >0) {
-			sqlString = sqlString + " " + queryString[index] + " AND "
-		} 
-		if (len(queryString) -1 == index) {
-			sqlString = sqlString + " "  + queryString[index]
-		}
-		
-	}
 
-	sql := fmt.Sprintf("SELECT id, name, alternative_name, wind, swell, province, bottom, access, location, description, direction, crowd, best_season, type, tide,  ST_AsGeoJSON(ST_Transform(geom, 4326)) as geom from spots WHERE %s", sqlString)
-	fmt.Print(sqlString)
+	sql := fmt.Sprintf("SELECT id, name, alternative_name, wind, swell, province, bottom, access, location, description, direction, crowd, best_season, type, tide,  ST_AsGeoJSON(ST_Transform(geom, 4326)) as geom from spots WHERE %s", queryString[0])
+	fmt.Print("sql string", sql)
 	spotRepo.db.Raw(sql).Scan(&spots)
 	return spots, utils.HttpError{}
 }
@@ -98,5 +83,9 @@ func buildQuerySqlString(key string, value []string) string {
 	if(key == "wind") {
 		return "'" + value[0] + "' = ANY (" + key + ")"
 	}
-	return key +" LIKE " + "'"+value[0]+"'"
+	if(key=="name") {
+		return  "strpos(" + key+ "," + "'" + value[0]  +  "')  > 0" + " OR " + "strpos(alternative_name," + "'" + value[0]  +  "')  > 0";
+	}
+
+	return key +" LIKE " + "'%"+value[0]+"%'"
 }
