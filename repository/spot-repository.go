@@ -84,7 +84,7 @@ func buildQuerySqlString(key string, value []string) string {
 		return "'" + value[0] + "' = ANY (" + key + ")"
 	}
 	if(key=="name") {
-		return  "strpos(" + key+ "," + "'" + value[0]  +  "')  > 0" + " OR " + "strpos(alternative_name," + "'" + value[0]  +  "')  > 0";
+		return  "strpos(Lower(" + key+ ")," + "Lower('" + value[0]  +  "'))  > 0" + " OR " + "strpos(Lower(alternative_name)," + "LOWER('" + value[0]  +  "'))  > 0";
 	}
 
 	return key +" LIKE " + "'%"+value[0]+"%'"
